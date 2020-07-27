@@ -31,6 +31,8 @@ type Injector interface {
 	// dependency in its Type map it will check its parent before returning an
 	// error.
 	SetParent(Injector)
+	// Clear clears the values in the injector.
+	Clear()
 }
 
 // Applicator represents an interface for mapping dependencies to a struct.
@@ -121,6 +123,14 @@ func New() Injector {
 	return &injector{
 		values: make(map[reflect.Type]reflect.Value),
 	}
+}
+
+// Clear clears the values in the injector.
+func (inj *injector) Clear() {
+	for k := range inj.values {
+		delete(inj.values, k)
+	}
+	inj.parent = nil
 }
 
 // Invoke attempts to call the interface{} provided as a function,

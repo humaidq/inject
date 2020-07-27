@@ -162,6 +162,31 @@ func Test_Injector_GetVal(t *testing.T) {
 	})
 }
 
+func Test_Injector_Clear(t *testing.T) {
+	Convey("Clear", t, func() {
+		injector := inject.New()
+		So(injector, ShouldNotBeNil)
+
+		injector.Map("some dependency")
+
+		So(injector.GetVal(reflect.TypeOf("string")).IsValid(), ShouldBeTrue)
+		injector.Clear()
+		So(injector.GetVal(reflect.TypeOf("string")).IsValid(), ShouldBeFalse)
+
+		Convey("with parent", func() {
+			injector2 := inject.New()
+			So(injector, ShouldNotBeNil)
+			injector.MapTo("another dep", (*SpecialString)(nil))
+
+			injector2.SetParent(injector)
+
+			So(injector2.GetVal(inject.InterfaceOf((*SpecialString)(nil))).IsValid(), ShouldBeTrue)
+			injector.Clear()
+			So(injector2.GetVal(inject.InterfaceOf((*SpecialString)(nil))).IsValid(), ShouldBeFalse)
+		})
+	})
+}
+
 func Test_Injector_SetParent(t *testing.T) {
 	Convey("Set parent of injector", t, func() {
 		injector := inject.New()
